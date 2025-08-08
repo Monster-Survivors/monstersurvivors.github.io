@@ -269,11 +269,47 @@
       draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,TAU); ctx.fillStyle='#93c5fd'; ctx.fill(); }
     }
 
-    class Orb{
-      constructor(offsetR=26,damage=5){ this.offsetR=offsetR; this.damage=damage; this.angle=Math.random()*TAU; this.speed=1.8; this.r=6; }
-      update(dt){ this.angle+=this.speed*dt; this.x=state.player.x+Math.cos(this.angle)*this.offsetR; this.y=state.player.y+Math.sin(this.angle)*this.offsetR; collide(this); }
-      draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,TAU); ctx.fillStyle='#a78bfa'; ctx.fill(); }
+    class Orb {
+  constructor(offsetR = 26, damage = 5) {
+    this.offsetR = offsetR;            // distance from player center
+    this.damage = damage;              // base orb damage
+    this.angle = Math.random() * TAU;  // starting position
+    this.speed = 1.8;                   // rotation speed
+    this.r = 6;                         // orb radius
+
+    // Per-enemy hit cooldown
+    this.hitDelay = 0.25;               // seconds between hits on same enemy
+    this.lastHit = new Map();           // enemy -> last hit time
+  }
+
+  update(dt) {
+    // Move in orbit around player
+    this.angle += this.speed * dt;
+    this.x = state.player.x + Math.cos(this.angle) * this.offsetR;
+    this.y = state.player.y + Math.sin(this.angle) * this.offsetR;
+
+    // Collision + cooldown damage
+    for (const e of state.enemies) {
+      const dist = Math.hypot(e.x - this.x, e.y - this.y);
+      if (dist < this.r + e.r) {
+        const now = state.time;
+        const last = this.lastHit.get(e) || -Infinity;
+        if (now - last >= this.hitDelay) {
+          e.take(this.damage * state.damageMul);
+          this.lastHit.set(e, now);
+        }
+      }
     }
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, TAU);
+    ctx.fillStyle = '#a78bfa';
+    ctx.fill();
+  }
+}
+
 
     class Aura{
       constructor(radius=36,dps=25){ this.radius=radius; this.dps=dps; }
