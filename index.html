@@ -184,11 +184,11 @@
     const ENEMY_STATS = {
       bat:   { r:10, hp:10,  speed:45, dmg:7,  xp:1,  color:'#64748b' },
       skel:  { r:13, hp:28,  speed:30, dmg:12, xp:3,  color:'#e5e7eb' },
-      wraith:{ r:12, hp:22,  speed:70, dmg:10, xp:8,  color:'#9ca3af' },
-      brute: { r:16, hp:85,  speed:24, dmg:18, xp:10, color:'#ef4444' },
-      knight:{ r:15, hp:85,  speed:50, dmg:20, xp:15, color:'#cbd5e1' },
-      mage:  { r:12, hp:60,  speed:28, dmg:40, xp:20, color:'#a78bfa' },
-      ogre:  { r:20, hp:100, speed:20, dmg:65, xp:30, color:'#16a34a' },
+      wraith:{ r:12, hp:22,  speed:70, dmg:10, xp:10,  color:'#9ca3af' },
+      brute: { r:16, hp:85,  speed:24, dmg:18, xp:20, color:'#ef4444' },
+      knight:{ r:15, hp:100,  speed:50, dmg:50, xp:40, color:'#cbd5e1' },
+      mage:  { r:12, hp:100,  speed:28, dmg:80, xp:60, color:'#a78bfa' },
+      ogre:  { r:20, hp:500, speed:30, dmg:200, xp:100, color:'#16a34a' },
     };
 
     class Player{
@@ -353,18 +353,18 @@
           rebuild(){ state.orbs.length=0; for(let i=0;i<this.stats.count;i++){ const o=new Orb(this.stats.radius,this.stats.damage); o.angle=(i/Math.max(1,this.stats.count))*TAU; state.orbs.push(o);} },
           levelUp(){ this.level++; const s=this.stats; if(this.level===1){ s.count=2; this.rebuild(); } else if(this.level===2){ s.damage+=4; } else if(this.level===3){ s.count=3; this.rebuild(); } else if(this.level===4){ s.radius+=8; for(const o of state.orbs) o.offsetR=s.radius; } else if(this.level>=5){ s.damage+=6; } }
         },
-        aura:{ name:'Spirit Ring', desc:'Damaging aura around you. Radius +50%/lvl, damage falls off with distance and decreases per level.', level:0, max:6, stats:{ radius:36, dps:20 }, ref:null,
+        aura:{ name:'Spirit Ring', desc:'Damaging aura around you. Radius +50%/lvl, damage falls off with distance and decreases per level.', level:0, max:4, stats:{ radius:36, dps:20 }, ref:null,
           tick(dt){ if(this.level>0){ if(!this.ref){ this.ref=new Aura(this.stats.radius,this.stats.dps); state.auras.push(this.ref); } this.ref.radius=this.stats.radius; this.ref.dps=this.stats.dps; } },
           levelUp(){ this.level++; const s=this.stats; s.radius *= 1.5; s.dps *= 0.85; }
         },
       },
       passives:{
         speed:{ name:'Boots', desc:'Move speed +10% per level.', level:0, max:5, up(){ state.player.speed*=1.1; this.level++; } },
-        health:{ name:'Max HP', desc:'+20 Max HP & heal 20.', level:0, max:5, up(){ state.player.maxHp+=20; state.player.hp=Math.min(state.player.maxHp,state.player.hp+20); this.level++; } },
+        health:{ name:'Max HP', desc:'+5 Max HP & heal 20.', level:0, max:5, up(){ state.player.maxHp+=5; state.player.hp=Math.min(state.player.maxHp,state.player.hp+20); this.level++; } },
         magnet:{ name:'Magnet', desc:'Pickup range +20 per level.', level:0, max:5, up(){ state.player.pickup+=20; this.level++; } },
         cooldown:{ name:'Cooldown', desc:'Attack cooldown -8% per level.', level:0, max:5, up(){ state.player.cooldownMod*=0.92; this.level++; } },
         regen:{ name:'Regen', desc:'Regenerate +0.3 HP/s per level.', level:0, max:5, up(){ state.player.regen+=0.3; this.level++; } },
-        power:{ name:'Power', desc:'All damage +15% per level.', level:0, max:5, up(){ state.damageMul*=1.15; this.level++; } },
+        power:{ name:'Power', desc:'All damage +10% per level.', level:0, max:5, up(){ state.damageMul*=1.10; this.level++; } },
         multishot:{ name:'Multishot', desc:'Magic Bolt fires +1 projectile per level.', level:0, max:4, up(){ const w=pool.weapons.magic; w.stats.projectiles=Math.min(8,(w.stats.projectiles||1)+1); this.level++; } },
       }
     };
